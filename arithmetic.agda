@@ -1,5 +1,7 @@
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; sym)
+open import Data.Empty using (⊥; ⊥-elim)
+open import Relation.Nullary using (¬_)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 
 data ℕ : Set where
@@ -213,3 +215,11 @@ infixl 8 _^_
 ^-*-assoc m n (suc p) rewrite ^-*-assoc m n p | sym (^-distribˡ-|-* m n (n * p)) | *-suc n p  = refl
 
 
+-- Negated Equality
+_≢_ : ∀ {A : Set} → A → A → Set
+x ≢ y = ¬ (x ≡ y)
+
+-- Monus: Non-associativity 
+¬∸-assoc : ∀ {m n : ℕ} → m ≢ n → (m ∸ n) ≢ (n ∸ m)
+¬∸-assoc {zero} {zero} m≢n = m≢n
+¬∸-assoc {suc m} {suc n} sm≢sn m∸n≡n∸m = (¬∸-assoc λ{m≡n → sm≢sn (cong suc m≡n)}) m∸n≡n∸m
