@@ -219,7 +219,7 @@ infixl 8 _^_
 _≢_ : ∀ {A : Set} → A → A → Set
 x ≢ y = ¬ (x ≡ y)
 
--- Monus: Non-associativity 
+-- Monus: Non-commutativity 
 ¬∸-assoc : ∀ {m n : ℕ} → m ≢ n → (m ∸ n) ≢ (n ∸ m)
 ¬∸-assoc {zero} {zero} m≢n = m≢n
 ¬∸-assoc {suc m} {suc n} sm≢sn m∸n≡n∸m = (¬∸-assoc λ{m≡n → sm≢sn (cong suc m≡n)}) m∸n≡n∸m
