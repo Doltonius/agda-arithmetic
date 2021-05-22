@@ -3,6 +3,7 @@ open Eq using (_≡_; refl; cong; sym)
 open import Data.Empty using (⊥; ⊥-elim)
 open import Relation.Nullary using (¬_)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
+open import Data.Product using (Σ; _×_; ∃; ∃-syntax; Σ-syntax) renaming (_,_ to ⟨_,_⟩)
 
 data ℕ : Set where
   zero : ℕ
@@ -139,6 +140,9 @@ infixl 8 _^_
 +-identity′ zero = refl
 +-identity′ (suc n) rewrite +-identity′ n = refl
 
++-identityˡ : ∀ (n : ℕ) → zero + n ≡ n
++-identityˡ n rewrite +-comm zero n = refl
+
 -- Addition: Preposition of Suc (2nd proof)
 +-suc′ : ∀ (m n : ℕ) → m + suc n ≡ suc (m + n)
 +-suc′ zero n = refl
@@ -163,19 +167,23 @@ infixl 8 _^_
 *-assoc zero n p = refl
 *-assoc (suc m) n p rewrite *-distrib-+ n (m * n) p | *-assoc m n p = refl
 
--- Multiplication: Right Identity
-*-identity : ∀ (n : ℕ) → n * zero ≡ zero
-*-identity zero = refl
-*-identity (suc n) rewrite *-identity n = refl
+-- Multiplication: Right Zero
+*-zero : ∀ (n : ℕ) → n * zero ≡ zero
+*-zero zero = refl
+*-zero (suc n) rewrite *-zero n = refl
 
 -- Multiplication: Preposition of Suc
 *-suc : ∀ (m n : ℕ) → m * suc n ≡ m + m * n
-*-suc zero n rewrite *-identity n = refl
+*-suc zero n rewrite *-zero n = refl
 *-suc (suc m) n rewrite *-suc m n | +-swap n m (m * n) = refl
+
+-- Multiplication: Right Identity
+m*1≡m : ∀ (m : ℕ) → m * (suc zero) ≡ m 
+m*1≡m m rewrite *-suc m zero | *-zero m | +-identityʳ m = refl
 
 -- Multiplication: Commutativity
 *-comm : ∀ (m n : ℕ) → m * n ≡ n * m
-*-comm zero n rewrite *-identity n = refl
+*-comm zero n rewrite *-zero n = refl
 *-comm (suc m) n rewrite *-suc n m | *-comm m n = refl
 
 -- Multiplication: Swap
@@ -211,7 +219,7 @@ infixl 8 _^_
 
 -- Exponentiation: Right Associativity with Multiplication
 ^-*-assoc : ∀ (m n p : ℕ) → (m ^ n) ^ p ≡ m ^ (n * p)
-^-*-assoc m n zero rewrite *-identity n = refl
+^-*-assoc m n zero rewrite *-zero n = refl
 ^-*-assoc m n (suc p) rewrite ^-*-assoc m n p | sym (^-distribˡ-|-* m n (n * p)) | *-suc n p  = refl
 
 
@@ -223,3 +231,21 @@ x ≢ y = ¬ (x ≡ y)
 ¬∸-assoc : ∀ {m n : ℕ} → m ≢ n → (m ∸ n) ≢ (n ∸ m)
 ¬∸-assoc {zero} {zero} m≢n = m≢n
 ¬∸-assoc {suc m} {suc n} sm≢sn m∸n≡n∸m = (¬∸-assoc λ{m≡n → sm≢sn (cong suc m≡n)}) m∸n≡n∸m
+
+-- ||: Divides
+data _||_ : ℕ → ℕ → Set where
+  div : ∀ {m n} → Σ[ x ∈ ℕ ] (m * x ≡ n) → m || n
+
+
+-- Divides: Reflexivity
+||-refl : ∀ (m : ℕ) → m || m 
+||-refl m = div ⟨ suc zero , m*1≡m m ⟩
+
+-- Divides: Transitivity
+||-trans : ∀ {m n p : ℕ} → m || n → n || p → m || p
+||-trans {m} {n} {p} (div ⟨ fst , snd ⟩) (div ⟨ fst₁ , snd₁ ⟩) = div ⟨ fst * fst₁ , *-trans {m} {n} {p} {fst} {fst₁} snd snd₁ ⟩ where
+  *-trans : ∀ {m n p f f1} → m * f ≡ n → n * f1 ≡ p → m * (f * f1) ≡ p
+  *-trans {m} {n} {p} {f} {f1} mfn nf1p rewrite sym (*-assoc m f f1) | mfn | nf1p = refl
+
+  
+
