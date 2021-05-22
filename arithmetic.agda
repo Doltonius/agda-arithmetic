@@ -236,7 +236,6 @@ x ≢ y = ¬ (x ≡ y)
 data _||_ : ℕ → ℕ → Set where
   div : ∀ {m n} → Σ[ x ∈ ℕ ] (m * x ≡ n) → m || n
 
-
 -- Divides: Reflexivity
 ||-refl : ∀ (m : ℕ) → m || m 
 ||-refl m = div ⟨ suc zero , m*1≡m m ⟩
