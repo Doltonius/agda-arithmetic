@@ -232,17 +232,17 @@ x ≢ y = ¬ (x ≡ y)
 ¬∸-assoc {zero} {zero} m≢n = m≢n
 ¬∸-assoc {suc m} {suc n} sm≢sn m∸n≡n∸m = (¬∸-assoc λ{m≡n → sm≢sn (cong suc m≡n)}) m∸n≡n∸m
 
--- ||: Divides
-data _||_ : ℕ → ℕ → Set where
-  div : ∀ {m n} → Σ[ x ∈ ℕ ] (m * x ≡ n) → m || n
+-- ∣: Divisibility (this is \mid, not pipe |)
+data _∣_ : ℕ → ℕ → Set where
+  div : ∀ {m n} → Σ[ x ∈ ℕ ] (m * x ≡ n) → m ∣ n
 
--- Divides: Reflexivity
-||-refl : ∀ (m : ℕ) → m || m 
-||-refl m = div ⟨ suc zero , m*1≡m m ⟩
+-- Divisibility: Reflexivity
+∣-refl : ∀ (m : ℕ) → m ∣ m 
+∣-refl m = div ⟨ suc zero , m*1≡m m ⟩
 
--- Divides: Transitivity
-||-trans : ∀ {m n p : ℕ} → m || n → n || p → m || p
-||-trans {m} {n} {p} (div ⟨ fst , snd ⟩) (div ⟨ fst₁ , snd₁ ⟩) = div ⟨ fst * fst₁ , *-trans {m} {n} {p} {fst} {fst₁} snd snd₁ ⟩ where
+-- Divisibility: Transitivity
+∣-trans : ∀ {m n p : ℕ} → m ∣ n → n ∣ p → m ∣ p
+∣-trans {m} {n} {p} (div ⟨ fst , snd ⟩) (div ⟨ fst₁ , snd₁ ⟩) = div ⟨ fst * fst₁ , *-trans {m} {n} {p} {fst} {fst₁} snd snd₁ ⟩ where
   *-trans : ∀ {m n p f f1} → m * f ≡ n → n * f1 ≡ p → m * (f * f1) ≡ p
   *-trans {m} {n} {p} {f} {f1} mfn nf1p rewrite sym (*-assoc m f f1) | mfn | nf1p = refl
 
